@@ -14,6 +14,7 @@ class AppTheme {
           fontWeight: FontWeight.bold,
           color: Colors.white,
         ),
+        iconTheme: IconThemeData(color: Colors.white),
       ),
       textTheme: TextTheme(
         bodyLarge: GoogleFonts.poppins(fontSize: 18),

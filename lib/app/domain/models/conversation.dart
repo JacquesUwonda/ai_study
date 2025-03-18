@@ -1,14 +1,16 @@
-class Conversation {
+import 'package:ai_study/app/domain/models/lesson.dart';
+import 'package:ai_study/app/domain/models/quiz.dart';
+
+class Topic {
   final int? id;
-  final String topic;
-  final List<Message> messages;
+  final String title;
+  final List<Lesson> lessons;
+  final List<Quiz> quizzes;
 
-  Conversation({this.id, required this.topic, required this.messages});
-}
-
-class Message {
-  final String text;
-  final bool isUser;
-
-  Message({required this.text, required this.isUser});
+  Topic({
+    this.id,
+    required this.title,
+    required this.lessons,
+    required this.quizzes,
+  });
 }

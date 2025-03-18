@@ -1,4 +1,6 @@
 import 'package:ai_study/app/domain/models/conversation.dart';
+import 'package:ai_study/app/domain/models/lesson.dart';
+import 'package:ai_study/app/domain/models/quiz.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
@@ -17,71 +19,108 @@ class DatabaseHelper {
 
   Future<Database> _initDatabase() async {
     final dbPath = await getDatabasesPath();
-    final path = join(dbPath, 'chat_history.db');
+    final path = join(dbPath, 'topics.db');
     return await openDatabase(path, version: 1, onCreate: _onCreate);
   }
 
   Future<void> _onCreate(Database db, int version) async {
     await db.execute('''
-      CREATE TABLE conversations(
+      CREATE TABLE topics(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        topic TEXT
+        title TEXT
       )
     ''');
     await db.execute('''
-      CREATE TABLE messages(
+      CREATE TABLE lessons(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        conversationId INTEGER,
-        text TEXT,
-        isUser INTEGER,
-        FOREIGN KEY(conversationId) REFERENCES conversations(id)
+        topicId INTEGER,
+        title TEXT,
+        description TEXT,
+        FOREIGN KEY(topicId) REFERENCES topics(id)
+      )
+    ''');
+    await db.execute('''
+      CREATE TABLE quizzes(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        topicId INTEGER,
+        question TEXT,
+        options TEXT,
+        correctAnswer TEXT,
+        FOREIGN KEY(topicId) REFERENCES topics(id)
       )
     ''');
   }
 
-  Future<int> insertConversation(String topic) async {
+  Future<int> insertTopic(String title) async {
     final db = await database;
-    return await db.insert('conversations', {
-      'topic': topic,
+    return await db.insert('topics', {
+      'title': title,
     }, conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
-  Future<void> insertMessage(int conversationId, Message message) async {
+  Future<void> insertLesson(int topicId, Lesson lesson) async {
     final db = await database;
-    await db.insert('messages', {
-      'conversationId': conversationId,
-      'text': message.text,
-      'isUser': message.isUser ? 1 : 0,
+    await db.insert('lessons', {
+      'topicId': topicId,
+      'title': lesson.title,
+      'description': lesson.description,
     }, conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
-  Future<List<Conversation>> getConversations() async {
+  Future<void> insertQuiz(int topicId, Quiz quiz) async {
     final db = await database;
-    final List<Map<String, dynamic>> conversationMaps = await db.query(
-      'conversations',
-    );
-    final List<Conversation> conversations = [];
+    await db.insert('quizzes', {
+      'topicId': topicId,
+      'question': quiz.question,
+      'options': quiz.options.join(
+        '|',
+      ), // Stocker les options sous forme de chaîne séparée par "|"
+      'correctAnswer': quiz.correctAnswer,
+    }, conflictAlgorithm: ConflictAlgorithm.replace);
+  }
 
-    for (var conversationMap in conversationMaps) {
-      final List<Map<String, dynamic>> messageMaps = await db.query(
-        'messages',
-        where: 'conversationId = ?',
-        whereArgs: [conversationMap['id']],
+  Future<List<Topic>> getTopics() async {
+    final db = await database;
+    final List<Map<String, dynamic>> topicMaps = await db.query('topics');
+    final List<Topic> topics = [];
+
+    for (var topicMap in topicMaps) {
+      final List<Map<String, dynamic>> lessonMaps = await db.query(
+        'lessons',
+        where: 'topicId = ?',
+        whereArgs: [topicMap['id']],
       );
-      final messages =
-          messageMaps.map((map) {
-            return Message(text: map['text'], isUser: map['isUser'] == 1);
+      final lessons =
+          lessonMaps.map((map) {
+            return Lesson(title: map['title'], description: map['description']);
           }).toList();
 
-      conversations.add(
-        Conversation(
-          id: conversationMap['id'],
-          topic: conversationMap['topic'],
-          messages: messages,
+      final List<Map<String, dynamic>> quizMaps = await db.query(
+        'quizzes',
+        where: 'topicId = ?',
+        whereArgs: [topicMap['id']],
+      );
+      final quizzes =
+          quizMaps.map((map) {
+            return Quiz(
+              question: map['question'],
+              options: (map['options'] as String).split(
+                '|',
+              ), // Convertir la chaîne en liste
+              correctAnswer: map['correctAnswer'],
+            );
+          }).toList();
+
+      topics.add(
+        Topic(
+          id: topicMap['id'],
+          title: topicMap['title'],
+          lessons: lessons,
+          quizzes: quizzes,
         ),
       );
     }
 
-    return conversations;
+    return topics;
   }
 }
