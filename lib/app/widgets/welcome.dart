@@ -18,79 +18,88 @@ class Welcome extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Welcome Message
-        Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Welcome to Learn Programming!',
+    return SingleChildScrollView(
+      physics: BouncingScrollPhysics(),
+      child: SizedBox(
+        height: MediaQuery.of(context).size.height * 0.8,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: 8,
+          children: [
+            // Welcome Message
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                spacing: 8,
+                children: [
+                  Text(
+                    'Welcome to Learn Programming!',
+                    style: GoogleFonts.poppins(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).primaryColor,
+                    ),
+                  ),
+                  Text(
+                    'Explore programming topics and learn interactively. Tap on a topic to get started!',
+                    style: GoogleFonts.poppins(
+                      fontSize: 16,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // Popular Topics
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Text(
+                'Popular Programming Topics',
                 style: GoogleFonts.poppins(
-                  fontSize: 24,
+                  fontSize: 20,
                   fontWeight: FontWeight.bold,
                   color: Theme.of(context).primaryColor,
                 ),
               ),
-              SizedBox(height: 8),
-              Text(
-                'Explore programming topics and learn interactively. Tap on a topic to get started!',
-                style: GoogleFonts.poppins(
-                  fontSize: 16,
-                  color: Colors.grey[600],
+            ),
+            SizedBox(
+              height: 150,
+              child: ListView.builder(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                scrollDirection: Axis.horizontal,
+                itemCount: topics.length,
+                itemBuilder: (context, index) {
+                  final topic = topics[index];
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 16),
+                    child: TopicCard(
+                      title: topic['title'],
+                      icon: topic['icon'],
+                      onTap:
+                          () => context.read<LessonBloc>().add(
+                            LoadLessonEvent(topic['title']),
+                          ),
+                    ),
+                  );
+                },
+              ),
+            ),
+            Expanded(
+              child: Center(
+                child: Text(
+                  'What do you want to learn?',
+                  style: GoogleFonts.poppins(
+                    fontSize: 20,
+                    color: Colors.grey[600],
+                  ),
                 ),
               ),
-            ],
-          ),
-        ),
-
-        // Popular Topics
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Text(
-            'Popular Topics',
-            style: GoogleFonts.poppins(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Theme.of(context).primaryColor,
             ),
-          ),
+          ],
         ),
-        SizedBox(height: 16),
-        SizedBox(
-          height: 150,
-          child: ListView.builder(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            scrollDirection: Axis.horizontal,
-            itemCount: topics.length,
-            itemBuilder: (context, index) {
-              final topic = topics[index];
-              return Padding(
-                padding: const EdgeInsets.only(right: 16),
-                child: TopicCard(
-                  title: topic['title'],
-                  icon: topic['icon'],
-                  onTap:
-                      () => context.read<LessonBloc>().add(
-                        LoadLessonEvent(topic['title']),
-                      ),
-                ),
-              );
-            },
-          ),
-        ),
-        Expanded(
-          child: Center(
-            child: Text(
-              'What do you want to learn?',
-              style: GoogleFonts.poppins(fontSize: 20, color: Colors.grey[600]),
-            ),
-          ),
-        ),
-      ],
+      ),
     );
   }
 }
