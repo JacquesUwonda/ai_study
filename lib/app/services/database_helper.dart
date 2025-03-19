@@ -2,6 +2,7 @@ import 'package:ai_study/app/domain/models/conversation.dart';
 import 'package:ai_study/app/domain/models/lesson.dart';
 import 'package:ai_study/app/domain/models/quiz.dart';
 import 'package:sqflite/sqflite.dart';
+// ignore: depend_on_referenced_packages
 import 'package:path/path.dart';
 
 class DatabaseHelper {

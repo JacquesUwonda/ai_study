@@ -4,9 +4,8 @@ import 'package:google_fonts/google_fonts.dart';
 class AppTheme {
   static ThemeData get lightTheme {
     return ThemeData(
-      primaryColor: Color(0xFF6200EE), // Purple
-      hintColor: Color(0xFF03DAC6), // Teal
-      scaffoldBackgroundColor: Color(0xFFF5F5F5), // Light gray
+      primaryColor: Color(0xFF6200EE),
+      scaffoldBackgroundColor: Color(0xFFF5F5F5),
       appBarTheme: AppBarTheme(
         backgroundColor: Color(0xFF6200EE),
         titleTextStyle: GoogleFonts.poppins(
@@ -34,6 +33,15 @@ class AppTheme {
           borderSide: BorderSide.none,
         ),
         contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ButtonStyle(
+          backgroundColor: WidgetStateProperty.all(Color(0xFF6200EE)),
+          shape: WidgetStateProperty.all(
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          ),
+          foregroundColor: WidgetStateProperty.all(Colors.white),
+        ),
       ),
     );
   }

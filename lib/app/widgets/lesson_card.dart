@@ -5,8 +5,16 @@ import 'package:google_fonts/google_fonts.dart';
 class LessonCard extends StatelessWidget {
   final String title;
   final String description;
+  final VoidCallback onContinue;
+  final VoidCallback onQuiz;
 
-  const LessonCard({super.key, required this.title, required this.description});
+  const LessonCard({
+    super.key,
+    required this.title,
+    required this.description,
+    required this.onContinue,
+    required this.onQuiz,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -44,6 +52,14 @@ class LessonCard extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                 ),
               ),
+            ),
+            SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                ElevatedButton(onPressed: onQuiz, child: Text('Quiz')),
+                ElevatedButton(onPressed: onContinue, child: Text('Continue')),
+              ],
             ),
           ],
         ),

@@ -14,6 +14,8 @@ class Welcome extends StatelessWidget {
     {'title': 'Algorithms', 'icon': Icons.timeline},
   ];
 
+  Welcome({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Column(

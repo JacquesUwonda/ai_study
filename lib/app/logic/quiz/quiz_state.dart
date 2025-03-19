@@ -11,18 +11,34 @@ class QuizInitial extends QuizState {}
 class QuizLoading extends QuizState {}
 
 class QuizLoaded extends QuizState {
-  final Quiz quiz;
-  final String selectedOption;
-  const QuizLoaded({required this.quiz, required this.selectedOption});
+  final List<Quiz> questions;
+  final int currentQuestionIndex;
+  final String? selectedOption;
+  final int score;
+
+  const QuizLoaded({
+    required this.questions,
+    required this.currentQuestionIndex,
+    this.selectedOption,
+    required this.score,
+  });
+
   @override
-  List<Object> get props => [quiz, selectedOption];
+  List<Object> get props => [
+    questions,
+    currentQuestionIndex,
+    selectedOption ?? '',
+    score,
+  ];
 }
 
-class QuizResult extends QuizState {
-  final bool isCorrect;
-  const QuizResult({required this.isCorrect});
+class QuizCompleted extends QuizState {
+  final int score;
+
+  const QuizCompleted({required this.score});
+
   @override
-  List<Object> get props => [isCorrect];
+  List<Object> get props => [score];
 }
 
 class QuizError extends QuizState {

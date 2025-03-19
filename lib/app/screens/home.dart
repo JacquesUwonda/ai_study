@@ -1,4 +1,6 @@
 import 'package:ai_study/app/domain/models/conversation.dart';
+import 'package:ai_study/app/logic/lesson/lesson_state.dart';
+import 'package:ai_study/app/screens/quiz_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ai_study/app/logic/lesson/lesson_bloc.dart';
@@ -11,11 +13,12 @@ class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _HomeScreenState createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final TextEditingController _textController = TextEditingController();
+  final TextEditingController textController = TextEditingController();
   final DatabaseHelper _dbHelper = DatabaseHelper();
   List<Topic> _topics = [];
   Topic? _currentTopic;
@@ -36,33 +39,41 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _startNewTopic() async {
     setState(() {
       _currentTopic = null;
+      textController.clear();
     });
+
+    //reset to initial
+    context.read<LessonBloc>().add(ResetLessonEvent());
   }
 
   Future<void> _loadTopic(Topic topic) async {
     setState(() {
       _currentTopic = topic;
     });
+    context.read<LessonBloc>().add(LoadLessonEvent(topic.title));
   }
 
   Future<void> _sendMessage() async {
-    final topicTitle = _textController.text.trim();
+    final topicTitle = textController.text.trim();
     if (topicTitle.isEmpty) return;
 
-    // Créer un nouveau topic si nécessaire
     if (_currentTopic == null) {
       final topicId = await _dbHelper.insertTopic(topicTitle);
-      _currentTopic = Topic(
+      final newTopic = Topic(
         id: topicId,
         title: topicTitle,
         lessons: [],
         quizzes: [],
       );
-      _topics.add(_currentTopic!);
+      setState(() {
+        _currentTopic = newTopic;
+        _topics.add(newTopic);
+      });
     }
 
-    // Charger les leçons et les quiz pour ce topic
+    // ignore: use_build_context_synchronously
     context.read<LessonBloc>().add(LoadLessonEvent(topicTitle));
+    textController.clear();
   }
 
   @override
@@ -85,16 +96,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             ),
-            ..._topics.map((topic) {
-              return ListTile(
-                title: Text(topic.title),
-                onTap: () {
-                  _loadTopic(topic);
-                  Navigator.pop(context);
-                },
-              );
-            }).toList(),
-            Divider(),
             ListTile(
               leading: Icon(Icons.add),
               title: Text('New Topic'),
@@ -103,12 +104,21 @@ class _HomeScreenState extends State<HomeScreen> {
                 Navigator.pop(context);
               },
             ),
+            Divider(),
+            ..._topics.reversed.map((topic) {
+              return ListTile(
+                title: Text(topic.title),
+                onTap: () {
+                  _loadTopic(topic);
+                  Navigator.pop(context);
+                },
+              );
+            }),
           ],
         ),
       ),
       body: Column(
         children: [
-          // Lessons List
           Expanded(
             child: BlocBuilder<LessonBloc, LessonState>(
               builder: (context, state) {
@@ -123,6 +133,26 @@ class _HomeScreenState extends State<HomeScreen> {
                       return LessonCard(
                         title: lesson.title,
                         description: lesson.description,
+                        onContinue: () {
+                          // Charger la leçon suivante
+                          context.read<LessonBloc>().add(
+                            LoadLessonEvent(
+                              _currentTopic!.title,
+                              lessonIndex: index + 1,
+                            ),
+                          );
+                        },
+                        onQuiz: () {
+                          // Naviguer vers l'écran de quiz
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder:
+                                  (context) =>
+                                      QuizScreen(topic: _currentTopic!.title),
+                            ),
+                          );
+                        },
                       );
                     },
                   );
@@ -133,16 +163,14 @@ class _HomeScreenState extends State<HomeScreen> {
               },
             ),
           ),
-          // Input Section
           Container(
             padding: EdgeInsets.all(10),
             color: Colors.white,
             child: Row(
               children: [
-                // Text Input
                 Expanded(
                   child: TextField(
-                    controller: _textController,
+                    controller: textController,
                     decoration: InputDecoration(
                       hintText: 'Enter a topic (e.g., Python Basics)',
                       filled: true,
@@ -159,7 +187,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 SizedBox(width: 8),
-                // Send Button
                 CircleAvatar(
                   backgroundColor: Theme.of(context).primaryColor,
                   child: IconButton(
@@ -175,94 +202,3 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
-
-// import 'package:ai_study/app/widgets/welcome.dart';
-// import 'package:flutter/material.dart';
-// import 'package:flutter_bloc/flutter_bloc.dart';
-// import 'package:ai_study/app/logic/lesson/lesson_bloc.dart';
-// import '../widgets/lesson_card.dart';
-
-// class HomeScreen extends StatelessWidget {
-//   const HomeScreen({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     final TextEditingController textController = TextEditingController();
-
-//     return Scaffold(
-//       appBar: AppBar(title: Text('Learn with AI')),
-//       body: Column(
-//         children: [
-//           // Lessons List
-//           Expanded(
-//             child: BlocBuilder<LessonBloc, LessonState>(
-//               builder: (context, state) {
-//                 if (state is LessonLoading) {
-//                   return Center(child: CircularProgressIndicator());
-//                 } else if (state is LessonLoaded) {
-//                   return ListView.builder(
-//                     padding: EdgeInsets.symmetric(vertical: 8),
-//                     itemCount: state.lessons.length,
-//                     itemBuilder: (context, index) {
-//                       final lesson = state.lessons[index];
-//                       return LessonCard(
-//                         title: lesson.title,
-//                         description: lesson.description,
-//                       );
-//                     },
-//                   );
-//                 } else if (state is LessonError) {
-//                   return Center(child: Text(state.error));
-//                 }
-//                 return Welcome();
-//               },
-//             ),
-//           ),
-//           // Input Section
-//           Container(
-//             padding: EdgeInsets.all(10),
-//             color: Colors.white,
-//             child: Row(
-//               children: [
-//                 // Text Input
-//                 Expanded(
-//                   child: TextField(
-//                     controller: textController,
-//                     decoration: InputDecoration(
-//                       hintText: 'Enter a topic (e.g., Python Basics)',
-//                       filled: true,
-//                       fillColor: Colors.grey[200],
-//                       border: OutlineInputBorder(
-//                         borderRadius: BorderRadius.circular(20),
-//                         borderSide: BorderSide.none,
-//                       ),
-//                       contentPadding: EdgeInsets.symmetric(
-//                         horizontal: 16,
-//                         vertical: 12,
-//                       ),
-//                     ),
-//                   ),
-//                 ),
-//                 SizedBox(width: 8),
-//                 // Send Button
-//                 CircleAvatar(
-//                   backgroundColor: Theme.of(context).primaryColor,
-//                   child: IconButton(
-//                     icon: Icon(Icons.send, color: Colors.white),
-//                     onPressed: () {
-//                       final topic = textController.text.trim();
-//                       if (topic.isNotEmpty) {
-//                         context.read<LessonBloc>().add(LoadLessonEvent(topic));
-//                         textController.clear();
-//                       }
-//                     },
-//                   ),
-//                 ),
-//               ],
-//             ),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }

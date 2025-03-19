@@ -1,21 +1,23 @@
+import 'package:ai_study/app/domain/models/badge_model.dart';
 import 'package:flutter/material.dart';
 
-class Badge {
-  final String name;
-  final String icon;
-
-  Badge({required this.name, required this.icon});
-}
-
 class BadgeWidget extends StatelessWidget {
-  final Badge badge;
+  final BadgeModel badge;
 
   const BadgeWidget({super.key, required this.badge});
 
   @override
   Widget build(BuildContext context) {
     return Column(
-      children: [Icon(Icons.star, color: Colors.amber), Text(badge.name)],
+      children: [
+        Icon(badge.icon, size: 50, color: Colors.amber),
+        SizedBox(height: 8),
+        Text(
+          textAlign: TextAlign.center,
+          badge.name,
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
+      ],
     );
   }
 }

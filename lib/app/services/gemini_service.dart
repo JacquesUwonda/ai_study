@@ -1,95 +1,95 @@
+import 'dart:convert';
+
 import 'package:google_generative_ai/google_generative_ai.dart';
 
 class GeminiService {
-  final String apiKey =
-      'AIzaSyD_6qxDoNDdkzRUoIDThDTQ2n0gZfwDH8c'; // Remplacez par votre clé API
+  final String apiKey = 'AIzaSyD_6qxDoNDdkzRUoIDThDTQ2n0gZfwDH8c';
 
-  // Méthode existante pour obtenir une leçon
-  Future<String> getLesson(String topic) async {
+  Future<String> getLesson(String topic, {int lessonIndex = 0}) async {
     try {
-      // Initialiser le modèle
       final model = GenerativeModel(
-        model: 'gemini-1.5-flash-latest', // Utiliser le dernier modèle Gemini
+        model: 'gemini-1.5-flash-latest',
         apiKey: apiKey,
       );
 
-      // Définir le prompt
       final prompt = '''
-Explain $topic in simple terms for a beginner. Provide examples and analogies.
-Keep the explanation concise and easy to understand. Introduce it in a style like: Let's break your lesson down. Before we go far, let's start with the basics. Here is what you have to know. Then at the end, ask if the user wants to know more about the topic.
+You are a professional tutor. Explain $topic in simple terms for a beginner.
+This is lesson ${lessonIndex + 1}. ${lessonIndex > 0 ? 'Build on the previous lessons.' : 'Start with the basics.'}
+Provide examples and analogies. Keep the explanation concise and easy to understand.
       ''';
 
-      // Générer le contenu
       final content = [Content.text(prompt)];
       final response = await model.generateContent(content);
 
-      // Retourner le texte généré
       return response.text ?? 'No response from Gemini';
     } catch (e) {
       throw Exception('Failed to load lesson: $e');
     }
   }
 
-  // Nouvelle méthode pour envoyer un message avec l'historique
-  Future<String> sendMessage(
-    String message,
-    List<Map<String, String>> history,
-  ) async {
+  // Méthode pour générer un quiz
+  Future<List<Map<String, dynamic>>> getQuiz(String topic) async {
     try {
-      // Initialiser le modèle
       final model = GenerativeModel(
-        model: 'gemini-1.5-flash-latest', // Utiliser le dernier modèle Gemini
+        model: 'gemini-1.5-flash-latest',
         apiKey: apiKey,
       );
 
-      // Convertir l'historique en format de conversation
-      final content =
-          history.map((msg) {
-            return Content.text(msg['text']!);
-          }).toList();
+      final prompt = '''
+Generate a quiz with ten question about $topic. Provide:
+- A question.
+- Four options (one correct, three incorrect).
+- The correct answer.
+Return the response as a JSON array with objects containing keys: question, options, correctAnswer.
+Do not include any markdown code blocks, just return the json.
+Example:
+[
+  {
+    "question": "What is a variable in Python?",
+    "options": ["A container for data", "A function", "A loop", "A class"],
+    "correctAnswer": "A container for data"
+  },
+  {
+    "question": "What is the output of `print(type(5))`?",
+    "options": ["<class 'str'>", "<class 'int'>", "<class 'float'>", "<class 'bool'>"],
+    "correctAnswer": "<class 'int'>"
+  }
+]
+      ''';
 
-      // Ajouter le nouveau message de l'utilisateur
-      content.add(Content.text(message));
-
-      // Générer la réponse
+      final content = [Content.text(prompt)];
       final response = await model.generateContent(content);
 
-      // Retourner le texte généré
-      return response.text ?? 'No response from Gemini';
+      if (response.text == null) {
+        throw Exception('Gemini returned an empty response');
+      }
+
+      String jsonString = response.text!;
+
+      // Remove code block markers
+      if (jsonString.startsWith('```json')) {
+        jsonString = jsonString.substring(7); // Remove '```json'
+      }
+      if (jsonString.endsWith('```')) {
+        jsonString = jsonString.substring(
+          0,
+          jsonString.length - 3,
+        ); // Remove '```'
+      }
+
+      try {
+        final dynamic decodedResponse = jsonDecode(jsonString);
+
+        if (decodedResponse is List) {
+          return decodedResponse.cast<Map<String, dynamic>>();
+        } else {
+          throw Exception('Gemini response is not a valid JSON array');
+        }
+      } catch (e) {
+        throw Exception('Failed to decode JSON: $e. Raw response: $jsonString');
+      }
     } catch (e) {
-      throw Exception('Failed to send message: $e');
+      throw Exception('Failed to generate quiz: $e');
     }
   }
 }
-
-// import 'package:google_generative_ai/google_generative_ai.dart';
-
-// class GeminiService {
-//   final String apiKey =
-//       'AIzaSyD_6qxDoNDdkzRUoIDThDTQ2n0gZfwDH8c'; // Replace with your actual API key
-
-//   Future<String> getLesson(String topic) async {
-//     try {
-//       // Initialize the model
-//       final model = GenerativeModel(
-//         model: 'gemini-1.5-flash-latest', // Use the latest Gemini model
-//         apiKey: apiKey,
-//       );
-
-//       // Define the prompt
-//       final prompt = '''
-// Explain $topic in simple terms for a beginner. Provide examples and analogies.
-// Keep the explanation concise and easy to understand. introduce it in a style like : Let's brake your lesson down, before we go far, let's start with the basics. here is what you have to know. Then at the end you ask him if he want to know more about the topic.
-//       ''';
-
-//       // Generate content
-//       final content = [Content.text(prompt)];
-//       final response = await model.generateContent(content);
-
-//       // Return the generated text
-//       return response.text ?? 'No response from Gemini';
-//     } catch (e) {
-//       throw Exception('Failed to load lesson: $e');
-//     }
-//   }
-// }

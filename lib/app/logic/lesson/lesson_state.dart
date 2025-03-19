@@ -1,4 +1,5 @@
-part of 'lesson_bloc.dart';
+import 'package:ai_study/app/domain/models/lesson.dart';
+import 'package:equatable/equatable.dart';
 
 abstract class LessonState extends Equatable {
   const LessonState();
@@ -12,9 +13,12 @@ class LessonLoading extends LessonState {}
 
 class LessonLoaded extends LessonState {
   final List<Lesson> lessons;
-  const LessonLoaded(this.lessons);
+  final int currentLessonIndex;
+
+  const LessonLoaded(this.lessons, this.currentLessonIndex);
+
   @override
-  List<Object> get props => [lessons];
+  List<Object> get props => [lessons, currentLessonIndex];
 }
 
 class LessonError extends LessonState {

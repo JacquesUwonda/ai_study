@@ -6,7 +6,14 @@ abstract class QuizEvent extends Equatable {
   List<Object> get props => [];
 }
 
-class LoadQuizEvent extends QuizEvent {}
+class LoadQuizEvent extends QuizEvent {
+  final String topic;
+
+  const LoadQuizEvent(this.topic);
+
+  @override
+  List<Object> get props => [topic];
+}
 
 class SelectOptionEvent extends QuizEvent {
   final String option;

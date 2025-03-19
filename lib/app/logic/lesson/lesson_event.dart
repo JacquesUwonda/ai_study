@@ -8,7 +8,15 @@ abstract class LessonEvent extends Equatable {
 
 class LoadLessonEvent extends LessonEvent {
   final String topic;
-  const LoadLessonEvent(this.topic);
+  final int lessonIndex;
+
+  const LoadLessonEvent(
+    this.topic, {
+    this.lessonIndex = 0,
+  }); // Initialiser à 0 par défaut
+
   @override
-  List<Object> get props => [topic];
+  List<Object> get props => [topic, lessonIndex]; // Ajouter lessonIndex aux props
 }
+
+class ResetLessonEvent extends LessonEvent {}

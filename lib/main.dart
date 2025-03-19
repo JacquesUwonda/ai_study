@@ -19,7 +19,6 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        //BlocProvider(create: (context) => AuthBloc()),
         BlocProvider(create: (context) => LessonBloc()),
         BlocProvider(create: (context) => QuizBloc()),
       ],
@@ -28,7 +27,6 @@ class MyApp extends StatelessWidget {
         theme: AppTheme.lightTheme,
         initialRoute: '/home',
         routes: {
-          // '/login': (context) => LoginScreen(),
           '/home': (context) => HomeScreen(),
           '/quiz': (context) => QuizScreen(topic: 'Python Basics'),
         },
