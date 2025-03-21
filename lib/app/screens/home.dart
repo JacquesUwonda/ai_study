@@ -87,13 +87,26 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             DrawerHeader(
               decoration: BoxDecoration(color: Theme.of(context).primaryColor),
-              child: Text(
-                'Topics',
-                style: GoogleFonts.poppins(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
+              child: Column(
+                spacing: 20,
+                children: [
+                  Text(
+                    'Topics',
+                    style: GoogleFonts.poppins(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                  Text(
+                    '© 2025 - Jacques Uwonda',
+                    style: GoogleFonts.poppins(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: const Color.fromARGB(162, 214, 214, 214),
+                    ),
+                  ),
+                ],
               ),
             ),
             ListTile(
