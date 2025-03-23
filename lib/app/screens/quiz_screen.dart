@@ -174,7 +174,11 @@ class QuizScreen extends StatelessWidget {
             } else {
               return Center(
                 child: Text(
+                  //si cette erreur est renvoye, n'hesitez pas de remplacer
+                  //le text "Une erreur est survenue" par state.error.toString()
+                  //pour voir le contenu de l'erreur. Cela peut provenir de Reponse de Gemini
                   "Une erreur est survenue",
+                  //state.error.toString(),
                   style: TextStyle(
                     color: Colors.grey[400],
                     fontSize: 24,
