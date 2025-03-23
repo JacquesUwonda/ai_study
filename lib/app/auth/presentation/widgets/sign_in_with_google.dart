@@ -10,10 +10,9 @@ class GoogleSignInButton extends StatelessWidget {
     return ElevatedButton.icon(
       onPressed: onPressed,
       icon: Container(
-        padding: EdgeInsets.all(2),
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: Theme.of(context).primaryColor,
+          border: Border.all(color: Theme.of(context).primaryColor, width: 1),
         ),
         child: Image.asset('assets/images/google.png', width: 35, height: 35),
       ),
