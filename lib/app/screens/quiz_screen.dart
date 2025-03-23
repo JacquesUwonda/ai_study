@@ -144,7 +144,45 @@ class QuizScreen extends StatelessWidget {
               ),
             );
           } else if (state is QuizError) {
-            return Center(child: Text(state.error));
+            if (state.error.toLowerCase().contains("failed to load quiz")) {
+              return Center(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      textAlign: TextAlign.center,
+                      "Connexion a echoue! Impossible de charger votre quiz",
+                      style: TextStyle(
+                        color: Colors.grey[400],
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      textAlign: TextAlign.center,
+                      "Verifiez que vous etes connecte a un reseau ou au Wi-Fi",
+                      style: TextStyle(
+                        color: Colors.grey[400],
+                        fontSize: 16,
+                        fontWeight: FontWeight.normal,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            } else {
+              return Center(
+                child: Text(
+                  "Une erreur est survenue",
+                  style: TextStyle(
+                    color: Colors.grey[400],
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              );
+            }
           }
           return Center(
             child: Text('No quiz generated, go back and retry again'),

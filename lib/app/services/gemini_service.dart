@@ -1,10 +1,12 @@
 import 'dart:convert';
 
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 
 class GeminiService {
-  final String apiKey = 'AIzaSyD_6qxDoNDdkzRUoIDThDTQ2n0gZfwDH8c';
+  final String apiKey = dotenv.env['GEMINI_API_KEY'] ?? '';
 
+  //Methode pour generer les lecons
   Future<String> getLesson(String topic, {int lessonIndex = 0}) async {
     try {
       final model = GenerativeModel(
@@ -13,17 +15,18 @@ class GeminiService {
       );
 
       final prompt = '''
-You are a professional tutor. Explain $topic in simple terms for a beginner.
-This is lesson ${lessonIndex + 1}. ${lessonIndex > 0 ? 'Build on the previous lessons.' : 'Start with the basics.'}
-Provide examples and analogies. Keep the explanation concise and easy to understand.
-      ''';
+Vous êtes un tuteur professionnel. Expliquez $topic en termes simples pour un débutant.
+Ceci est la leçon ${lessonIndex + 1}. ${lessonIndex > 0 ? 'Construisez sur les leçons précédentes.' : 'Commencez par les bases.'}
+Fournissez des exemples et des analogies. Gardez l'explication concise et facile à comprendre.
+**Le contenu doit être en français.**
+    ''';
 
       final content = [Content.text(prompt)];
       final response = await model.generateContent(content);
 
-      return response.text ?? 'No response from Gemini';
+      return response.text ?? 'Pas de réponse de Gemini';
     } catch (e) {
-      throw Exception('Failed to load lesson: $e');
+      throw Exception('Échec du chargement de la leçon: $e');
     }
   }
 
@@ -36,45 +39,46 @@ Provide examples and analogies. Keep the explanation concise and easy to underst
       );
 
       final prompt = '''
-Generate a quiz with ten question about $topic. Provide:
-- A question.
-- Four options (one correct, three incorrect).
-- The correct answer.
-Return the response as a JSON array with objects containing keys: question, options, correctAnswer.
-Do not include any markdown code blocks, just return the json.
-Example:
+Générez un quiz de dix questions sur $topic. Pour chaque question, fournissez :
+- Une question.
+- Quatre options (une correcte, trois incorrectes).
+- La réponse correcte.
+Retournez la réponse sous forme d'un tableau JSON avec des objets contenant les clés : question, options, correctAnswer.
+**Le contenu doit être en français.**
+Ne pas inclure de blocs de code markdown, retournez uniquement le JSON.
+Exemple :
 [
   {
-    "question": "What is a variable in Python?",
-    "options": ["A container for data", "A function", "A loop", "A class"],
-    "correctAnswer": "A container for data"
+    "question": "Qu'est-ce qu'une variable en Python ?",
+    "options": ["Un conteneur pour les données", "Une fonction", "Une boucle", "Une classe"],
+    "correctAnswer": "Un conteneur pour les données"
   },
   {
-    "question": "What is the output of `print(type(5))`?",
+    "question": "Quelle est la sortie de `print(type(5))` ?",
     "options": ["<class 'str'>", "<class 'int'>", "<class 'float'>", "<class 'bool'>"],
     "correctAnswer": "<class 'int'>"
   }
 ]
-      ''';
+    ''';
 
       final content = [Content.text(prompt)];
       final response = await model.generateContent(content);
 
       if (response.text == null) {
-        throw Exception('Gemini returned an empty response');
+        throw Exception('Gemini a retourné une réponse vide');
       }
 
       String jsonString = response.text!;
 
-      // Remove code block markers
+      // Supprimer les marqueurs de bloc de code
       if (jsonString.startsWith('```json')) {
-        jsonString = jsonString.substring(7); // Remove '```json'
+        jsonString = jsonString.substring(7); // Supprimer '```json'
       }
       if (jsonString.endsWith('```')) {
         jsonString = jsonString.substring(
           0,
           jsonString.length - 3,
-        ); // Remove '```'
+        ); // Supprimer '```'
       }
 
       try {
@@ -83,13 +87,17 @@ Example:
         if (decodedResponse is List) {
           return decodedResponse.cast<Map<String, dynamic>>();
         } else {
-          throw Exception('Gemini response is not a valid JSON array');
+          throw Exception(
+            'La réponse de Gemini n\'est pas un tableau JSON valide',
+          );
         }
       } catch (e) {
-        throw Exception('Failed to decode JSON: $e. Raw response: $jsonString');
+        throw Exception(
+          'Échec du décodage JSON: $e. Réponse brute: $jsonString',
+        );
       }
     } catch (e) {
-      throw Exception('Failed to generate quiz: $e');
+      throw Exception('Échec de la génération du quiz: $e');
     }
   }
 }

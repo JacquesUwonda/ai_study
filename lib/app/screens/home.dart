@@ -170,7 +170,47 @@ class _HomeScreenState extends State<HomeScreen> {
                     },
                   );
                 } else if (state is LessonError) {
-                  return Center(child: Text(state.error));
+                  if (state.error.toLowerCase().contains(
+                    "failed to load lesson",
+                  )) {
+                    return Center(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            textAlign: TextAlign.center,
+                            "Connexion a echoue! Impossible de charger votre lesson",
+                            style: TextStyle(
+                              color: Colors.grey[400],
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(
+                            textAlign: TextAlign.center,
+                            "Verifiez que vous etes connecte a un reseau ou au Wi-Fi",
+                            style: TextStyle(
+                              color: Colors.grey[400],
+                              fontSize: 16,
+                              fontWeight: FontWeight.normal,
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  } else {
+                    return Center(
+                      child: Text(
+                        "Une erreur est survenue",
+                        style: TextStyle(
+                          color: Colors.grey[400],
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    );
+                  }
                 }
                 return Welcome();
               },

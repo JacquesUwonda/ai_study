@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "576706353964",
+    "project_id": "aistudy-7fc7a",
+    "storage_bucket": "aistudy-7fc7a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:576706353964:android:47d20f9b00880d93dd6a89",
+        "android_client_info": {
+          "package_name": "com.example.ai_study"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "576706353964-hher8nmurkv8e5rvmageab44eusf9rvs.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDGypV-QMKELiHMek3mIMkT05rLV9qlUcI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "576706353964-hher8nmurkv8e5rvmageab44eusf9rvs.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
